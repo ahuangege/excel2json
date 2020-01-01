@@ -1,0 +1,14 @@
+{
+    "directory": [
+        {
+            "input": "E:\\GongXiang\\程序部\\文档\\配置表",
+            "output": "E:\\projects\\moba\\server\\mobaSvr\\jsonConfig"
+        }
+    ],
+    "file": [
+        {
+            "input": "E:\\GongXiang\\程序部\\文档\\配置表\\bullet.xlsx",
+            "output": "C:\\Users\\Administrator\\Desktop\\output\\bullet.json"
+        }
+    ]
+}
