@@ -1,16 +1,9 @@
 "use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var xlsx = __importStar(require("node-xlsx"));
-var fs = __importStar(require("fs"));
-var path = __importStar(require("path"));
-console.log("\n\n");
+exports.__esModule = true;
+var xlsx = require("node-xlsx");
+var fs = require("fs");
+var path = require("path");
+console.log("\n");
 var config = require("./config.json");
 var _loop_1 = function (one) {
     var inputfiles = [];
@@ -29,67 +22,42 @@ var _loop_1 = function (one) {
         return "continue";
     }
     inputfiles.forEach(function (filename) {
+        if (filename[0] === "~") {
+            return;
+        }
         if (!filename.endsWith(".xlsx")) {
             return;
         }
-        var basename = path.basename(filename, '.xlsx');
         var intputfilepath = path.join(one.input, filename);
         var buff = fs.readFileSync(intputfilepath);
-        parseBuffToJson(buff, path.join(one.output, basename + ".json"));
-        console.log("directory", "-----------", filename);
+        parseBuffToJson(buff, one.output, path.basename(filename, '.xlsx'));
+        console.log("---->>>", one.input, " ", filename);
     });
 };
-for (var _i = 0, _a = config.directory; _i < _a.length; _i++) {
-    var one = _a[_i];
+for (var _i = 0, config_1 = config; _i < config_1.length; _i++) {
+    var one = config_1[_i];
     _loop_1(one);
 }
 console.log("\n");
-for (var _b = 0, _c = config.file; _b < _c.length; _b++) {
-    var one = _c[_b];
-    if (path.extname(one.input) !== ".xlsx") {
-        console.error("file", "非法输入路径", one.input);
-        continue;
-    }
-    if (path.extname(one.output) !== ".json") {
-        console.error("file", "非法输出路径", one.output);
-        continue;
-    }
-    try {
-        fs.readdirSync(path.dirname(one.input));
-    }
-    catch (e) {
-        console.error("file", "非法输入路径", one.input);
-        continue;
-    }
-    try {
-        fs.readdirSync(path.dirname(one.output));
-    }
-    catch (e) {
-        console.error("file", "非法输出路径", one.output);
-        continue;
-    }
-    var buff = null;
-    try {
-        buff = fs.readFileSync(one.input);
-    }
-    catch (e) {
-        console.error("file", "非法输入路径", one.input);
-        continue;
-    }
-    parseBuffToJson(buff, one.output);
-    console.log("file     ", "-----------", path.basename(one.input));
-}
-console.log("\n\n");
-function parseBuffToJson(buff, outputfile) {
+function parseBuffToJson(buff, outputDir, filename) {
     var sheets = xlsx.parse(buff);
-    var lists = sheets[0].data;
-    var keyarr = lists[0];
-    var typearr = lists[1];
-    var obj = {};
-    for (var i = 3; i < lists.length; i++) {
-        obj[lists[i][0]] = createObj(keyarr, typearr, lists[i]);
+    for (var _i = 0, sheets_1 = sheets; _i < sheets_1.length; _i++) {
+        var one = sheets_1[_i];
+        var lists = one.data;
+        if (lists.length === 0) {
+            continue;
+        }
+        var keyarr = lists[0];
+        var typearr = lists[1];
+        var obj = {};
+        for (var i = 3; i < lists.length; i++) {
+            if (lists[i][0] === undefined) {
+                continue;
+            }
+            obj[lists[i][0]] = createObj(keyarr, typearr, lists[i]);
+        }
+        fs.writeFileSync(path.join(outputDir, filename + "_" + one.name + ".json"), JSON.stringify(obj, null, 4));
     }
-    fs.writeFileSync(outputfile, JSON.stringify(obj, null, 4));
 }
 function createObj(keyarr, typearr, dataarr) {
     var obj = {};

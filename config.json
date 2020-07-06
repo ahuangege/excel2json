@@ -1,14 +1,10 @@
-{
-    "directory": [
-        {
-            "input": "E:\\GongXiang\\程序部\\文档\\配置表",
-            "output": "E:\\projects\\moba\\server\\mobaSvr\\jsonConfig"
-        }
-    ],
-    "file": [
-        {
-            "input": "E:\\GongXiang\\程序部\\文档\\配置表\\bullet.xlsx",
-            "output": "C:\\Users\\Administrator\\Desktop\\output\\bullet.json"
-        }
-    ]
-}
+[
+    {
+        "input": "E:\\IHG009_MergeDefence\\文档\\程序\\配置表",
+        "output": "E:\\IHG009_MergeDefence\\GameCode_lockstep\\client_merge\\assets\\resources\\config"
+    },
+    {
+        "input": "E:\\IHG009_MergeDefence\\文档\\程序\\配置表",
+        "output": "E:\\IHG009_MergeDefence\\GameCode_lockstep\\server_merge\\jsonConfig"
+    }
+]

@@ -5,10 +5,10 @@ interface I_in_out {
     "input": string,
     "output": string
 }
-console.log("\n\n");
-let config: { "directory": I_in_out[], "file": I_in_out[] } = require("./config.json");
+console.log("\n");
+let config: I_in_out[] = require("./config.json");
 
-for (let one of config.directory) {
+for (let one of config) {
     let inputfiles: string[] = [];
     try {
         inputfiles = fs.readdirSync(one.input);
@@ -23,63 +23,40 @@ for (let one of config.directory) {
         continue;
     }
     inputfiles.forEach((filename) => {
+        if (filename[0] === "~") {
+            return;
+        }
         if (!filename.endsWith(".xlsx")) {
             return;
         }
-        let basename = path.basename(filename, '.xlsx');
         let intputfilepath = path.join(one.input, filename);
         let buff = fs.readFileSync(intputfilepath);
-        parseBuffToJson(buff, path.join(one.output, basename + ".json"));
-        console.log("directory","-----------", filename);
+        parseBuffToJson(buff, one.output, path.basename(filename, '.xlsx'));
+        console.log("---->>>", one.input, " ", filename);
     });
 }
 
 console.log("\n");
 
-for (let one of config.file) {
-    if (path.extname(one.input) !== ".xlsx") {
-        console.error("file", "非法输入路径", one.input);
-        continue;
-    }
-    if (path.extname(one.output) !== ".json") {
-        console.error("file", "非法输出路径", one.output);
-        continue;
-    }
-    try {
-        fs.readdirSync(path.dirname(one.input));
-    } catch (e) {
-        console.error("file", "非法输入路径", one.input);
-        continue;
-    }
-    try {
-        fs.readdirSync(path.dirname(one.output));
-    } catch (e) {
-        console.error("file", "非法输出路径", one.output);
-        continue;
-    }
 
-    let buff: Buffer = null as any;
-    try {
-        buff = fs.readFileSync(one.input);
-    } catch (e) {
-        console.error("file", "非法输入路径", one.input);
-        continue;
-    }
-    parseBuffToJson(buff, one.output);
-    console.log("file     ","-----------", path.basename(one.input));
-}
-console.log("\n\n");
-
-function parseBuffToJson(buff: Buffer, outputfile: string) {
+function parseBuffToJson(buff: Buffer, outputDir: string, filename: string) {
     let sheets = xlsx.parse(buff);
-    let lists: any = sheets[0].data;
-    let keyarr = lists[0];
-    let typearr = lists[1];
-    let obj: any = {};
-    for (let i = 3; i < lists.length; i++) {
-        obj[lists[i][0]] = createObj(keyarr, typearr, lists[i]);
+    for (let one of sheets) {
+        let lists: any = one.data;
+        if (lists.length === 0) {
+            continue;
+        }
+        let keyarr = lists[0];
+        let typearr = lists[1];
+        let obj: any = {};
+        for (let i = 3; i < lists.length; i++) {
+            if (lists[i][0] === undefined) {
+                continue;
+            }
+            obj[lists[i][0]] = createObj(keyarr, typearr, lists[i]);
+        }
+        fs.writeFileSync(path.join(outputDir, filename + "_" + one.name + ".json"), JSON.stringify(obj, null, 4));
     }
-    fs.writeFileSync(outputfile, JSON.stringify(obj, null, 4));
 }
 function createObj(keyarr: string[], typearr: string[], dataarr: any[]) {
     let obj: any = {};
