@@ -1,54 +1,61 @@
-import * as xlsx from "node-xlsx";
-import * as fs from "fs";
-import * as path from "path";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var xlsx = require("node-xlsx");
+var fs = require("fs");
+var path = require("path");
 console.log("\n");
-let config = require("./config.json");
-for (let one of config.dir) {
-    let inputfiles = [];
+var config = require("./config.json");
+var _loop_1 = function (one) {
+    var inputfiles = [];
     try {
         inputfiles = fs.readdirSync(one.input);
     }
     catch (e) {
         console.error("directory", "非法输入路径", one.input);
-        continue;
+        return "continue";
     }
     try {
         fs.readdirSync(one.output);
     }
     catch (e) {
         console.error("directory", "非法输出路径", one.output);
-        continue;
+        return "continue";
     }
-    inputfiles.forEach((filename) => {
+    inputfiles.forEach(function (filename) {
         if (filename[0] === "~") {
             return;
         }
         if (!filename.endsWith(".xlsx")) {
             return;
         }
-        let intputfilepath = path.join(one.input, filename);
-        let buff = fs.readFileSync(intputfilepath);
+        var intputfilepath = path.join(one.input, filename);
+        var buff = fs.readFileSync(intputfilepath);
         parseBuffToJson(buff, one.output, path.basename(filename, '.xlsx'));
         console.log("---->>>", one.input, " ", filename);
     });
+};
+for (var _i = 0, _a = config.dir; _i < _a.length; _i++) {
+    var one = _a[_i];
+    _loop_1(one);
 }
 console.log("\n");
 function parseBuffToJson(buff, outputDir, filename) {
-    let sheets = xlsx.parse(buff, { "raw": false });
-    for (let one of sheets) {
-        let lists = one.data;
+    var sheets = xlsx.parse(buff, { "raw": false });
+    for (var _i = 0, sheets_1 = sheets; _i < sheets_1.length; _i++) {
+        var one = sheets_1[_i];
+        var lists = one.data;
         if (lists.length === 0) {
             continue;
         }
-        let keyarr = lists[0];
-        let typearr = lists[1];
-        let isArray = !!config.isArray;
-        let obj = isArray ? { "data": [] } : {};
-        for (let i = 3; i < lists.length; i++) {
+        var keyarr = lists[0];
+        var typearr = lists[1];
+        var isArray = !!config.isArray;
+        var obj = isArray ? { "data": [] } : {};
+        for (var i = 3; i < lists.length; i++) {
             if (lists[i][0] === undefined) {
                 continue;
             }
-            let tmpInfo = createObj(keyarr, typearr, lists[i]);
+            var tmpInfo = createObj(keyarr, typearr, lists[i]);
             if (isArray) {
                 obj.data.push(tmpInfo);
             }
@@ -56,13 +63,13 @@ function parseBuffToJson(buff, outputDir, filename) {
                 obj[lists[i][0]] = tmpInfo;
             }
         }
-        let spaceNum = !!config.isPretty ? 4 : 0;
+        var spaceNum = !!config.isPretty ? 4 : 0;
         fs.writeFileSync(path.join(outputDir, filename + "_" + one.name + ".json"), JSON.stringify(obj, null, spaceNum));
     }
 }
 function createObj(keyarr, typearr, dataarr) {
-    let obj = {};
-    for (let i = 0; i < keyarr.length; i++) {
+    var obj = {};
+    for (var i = 0; i < keyarr.length; i++) {
         obj[keyarr[i]] = changeValue(dataarr[i], typearr[i]);
     }
     return obj;
