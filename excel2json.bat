@@ -1,2 +1,2 @@
-node.exe test.js
+node index.js
 @pause

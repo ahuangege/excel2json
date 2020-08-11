@@ -1,10 +1,10 @@
-[
-    {
-        "input": "E:\\IHG009_MergeDefence\\文档\\程序\\配置表",
-        "output": "E:\\IHG009_MergeDefence\\GameCode_lockstep\\client_merge\\assets\\resources\\config"
-    },
-    {
-        "input": "E:\\IHG009_MergeDefence\\文档\\程序\\配置表",
-        "output": "E:\\IHG009_MergeDefence\\GameCode_lockstep\\server_merge\\jsonConfig"
-    }
-]
+{
+    "isPretty": true,
+    "isArray": false,
+    "dir": [
+        {
+            "input": "E:\\ts\\testEx",
+            "output": "E:\\ts\\testEx"
+        }
+    ]
+}
